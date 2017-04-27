@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
- * Created by peter on 23.04.17.
+ * Fragment that handles a map.
  */
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -87,6 +87,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    public void showPOI(POI poi) {
+        float color;
+        if (poi.color.equals("red")) {
+            color = BitmapDescriptorFactory.HUE_RED;
+        } else {
+            color = BitmapDescriptorFactory.HUE_BLUE;
+        }
+        showMarker(poi.getLocation(), poi.getTitle(), color);
     }
 
     private void showMarker(LatLng position, String name, float color) {
