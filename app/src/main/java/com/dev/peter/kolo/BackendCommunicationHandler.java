@@ -40,7 +40,7 @@ class BackendCommunicationHandler {
      * @param location our current location
      * @param callback interface to handle poi result and error
      */
-    public void sendSearch(Search search, Location location, final CallbackInterface<ArrayList<POI>> callback) {
+    public void sendSearch(Search search, Location location, final SimpleCallback<ArrayList<POI>> callback) {
         final String API_SUB_URL_SEARCH = "/top";
 
         try {
@@ -52,7 +52,7 @@ class BackendCommunicationHandler {
             request_body.put("location", location_json);
             request_body.put("token", idToken);
 
-            postRequest(API_URL + API_SUB_URL_SEARCH, request_body, new CallbackInterface<JSONObject>() {
+            postRequest(API_URL + API_SUB_URL_SEARCH, request_body, new SimpleCallback<JSONObject>() {
                 @Override
                 public void onResult(JSONObject data) {
                     try {
@@ -115,7 +115,7 @@ class BackendCommunicationHandler {
         return poiList;
     }
 
-    private void getRequest(String request_url, final CallbackInterface<JSONObject> callback) {
+    private void getRequest(String request_url, final SimpleCallback<JSONObject> callback) {
         // Request a string response from the provided URL with volley
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, request_url, null, new Response.Listener<JSONObject>() {
@@ -135,7 +135,7 @@ class BackendCommunicationHandler {
     }
 
     private void postRequest(String request_url, JSONObject body,
-                             final CallbackInterface<JSONObject> callback) {
+                             final SimpleCallback<JSONObject> callback) {
         // Request a string response from the provided URL with volley
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.POST, request_url, body, new Response.Listener<JSONObject>() {
