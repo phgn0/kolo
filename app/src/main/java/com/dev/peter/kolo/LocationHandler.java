@@ -23,21 +23,15 @@ public class LocationHandler implements LocationListener {
     private LocationRequest mLocationRequest;
 
     private GoogleApiClient mGoogleApiClient;
-    private Context mContext;
-
-    private RequestCallback<String, PermissionCallback> requestPermission;
+    private Context mActivityContext;
 
     /**
      * Constructs an location handler.
-     * @param context an context, used to see if permissions are set
+     * @param context context from the active activity
      * @param googleApiClient provided GoogleApiClient from the activity
-     * @param requestPermission interface to call when we want to request the location permission
-     *                          arguments to request are the permission identifier string and a PermissionCallback
      */
-    public LocationHandler(Context context, GoogleApiClient googleApiClient,
-                           RequestCallback<String, PermissionCallback> requestPermission) {
-        this.mContext = context.getApplicationContext();    // to avoid possible memory leaks
-        this.requestPermission = requestPermission;
+    public LocationHandler(Context context, GoogleApiClient googleApiClient) {
+        mActivityContext = context;
         mGoogleApiClient = googleApiClient;
     }
 
@@ -57,9 +51,9 @@ public class LocationHandler implements LocationListener {
     }*/
 
     private void getLastLocation(final SimpleCallback<Location> callback) {
-        if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(mActivityContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            requestPermission.request(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
+            ((PermissionRequester) mActivityContext).requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
                 @Override
                 public void onGranted() {
                     getLastLocation(callback);
@@ -84,9 +78,9 @@ public class LocationHandler implements LocationListener {
     }
 
     private void startLocationUpdate() {
-        if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(mActivityContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            requestPermission.request(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
+            ((PermissionRequester) mActivityContext).requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
                 @Override
                 public void onGranted() {
                     // try again
