@@ -1,6 +1,5 @@
 package com.dev.peter.kolo;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -19,41 +18,116 @@ import com.google.android.gms.location.LocationServices;
 
 public class LocationHandler implements LocationListener {
     private final String TAG = "LocationHandler";
-    private Location mBestLocation;
+    private boolean highAccuracyMode;
+
+    private Location mCurrentLocation;
+
     private LocationRequest mLocationRequest;
+    private boolean mRequestingLocationUpdates;
+    private SimpleCallback<Location> locationUpdateCallback;
 
     private GoogleApiClient mGoogleApiClient;
-    private Context mActivityContext;
+    private Context mApplicationContext;
+    private PermissionRequester permissionRequester;
 
     /**
      * Constructs an location handler.
-     * @param context context from the active activity
+     * @param context the application context
+     * @param permissionRequester current activity (which implements PermissionRequester)
      * @param googleApiClient provided GoogleApiClient from the activity
+     * @param highAccuracyMode do you want high accuracy
      */
-    public LocationHandler(Context context, GoogleApiClient googleApiClient) {
-        mActivityContext = context;
+    public LocationHandler(Context context, PermissionRequester permissionRequester,
+                           GoogleApiClient googleApiClient, boolean highAccuracyMode) {
+        mApplicationContext = context.getApplicationContext();
         mGoogleApiClient = googleApiClient;
+        this.permissionRequester = permissionRequester;
+
+        this.highAccuracyMode = highAccuracyMode;
+        // TODO more granular accuracy / update settings
+
+        mRequestingLocationUpdates = false;
     }
 
     /**
-     * Get the best possible Location right now.
-     * @return our location
+     * This needs to be called when the used GoogleApiClient is connected.
      */
-    public Location getCurrent() {
-        return mBestLocation;
+    public void onGoogleClientConnected() {
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
     }
 
-    /*private void createLocationRequest(int interval, int fastestInterval, int priorityConst) {
+    /**
+     * Get the best possible Location right now, without requesting the the permission.
+     * @return our location
+     */
+    public Location getBestLocation() {
+        return mCurrentLocation;
+    }
+
+    /**
+     * Get one callback with a newly received location.
+     * @param callback the callback interface to call
+     */
+    public void requestNewLocation(final SimpleCallback<Location> callback) {
+        getLocationCallbacks(new SimpleCallback<Location>() {
+            @Override
+            public void onResult(Location data) {
+                stopLocationUpdates();
+                callback.onResult(data);
+            }
+
+            @Override
+            public void onError() {
+                callback.onError();
+            }
+        });
+    }
+
+    /**
+     * Get a callback every time we get a location update.
+     * Works only for one callback.
+     * @param callback the callback
+     */
+    public void getLocationCallbacks(SimpleCallback<Location> callback) {
+        if (mGoogleApiClient.isConnected() && !mRequestingLocationUpdates) {
+            generateLocationRequest();
+            locationUpdateCallback = callback;
+            startLocationUpdates();
+        }
+    }
+
+    /**
+     * Stop the location update callbacks.
+     */
+    public void stopLocationCallbacks() {
+        stopLocationUpdates();
+    }
+
+    private void generateLocationRequest() {
+        int interval, fastestInterval, priorityConst;
+
+        if (highAccuracyMode) {
+            priorityConst = LocationRequest.PRIORITY_HIGH_ACCURACY;
+            interval = 5000;
+            fastestInterval = 5000;
+        } else {
+            priorityConst = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+            interval = 20000;
+            fastestInterval = 10000;
+        }
+
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(interval);
         mLocationRequest.setFastestInterval(fastestInterval);
         mLocationRequest.setPriority(priorityConst);
-    }*/
+    }
 
     private void getLastLocation(final SimpleCallback<Location> callback) {
-        if (ActivityCompat.checkSelfPermission(mActivityContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(mApplicationContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ((PermissionRequester) mActivityContext).requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
+            permissionRequester.requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
                 @Override
                 public void onGranted() {
                     getLastLocation(callback);
@@ -61,7 +135,7 @@ public class LocationHandler implements LocationListener {
 
                 @Override
                 public void onRejected() {
-                    // TODO ?
+                    callback.onError();
                 }
             });
         } else {
@@ -77,14 +151,14 @@ public class LocationHandler implements LocationListener {
         }
     }
 
-    private void startLocationUpdate() {
-        if (ContextCompat.checkSelfPermission(mActivityContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+    private void startLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(mApplicationContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ((PermissionRequester) mActivityContext).requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
+            permissionRequester.requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, new PermissionCallback() {
                 @Override
                 public void onGranted() {
                     // try again
-                    startLocationUpdate();
+                    startLocationUpdates();
                 }
 
                 @Override
@@ -98,8 +172,21 @@ public class LocationHandler implements LocationListener {
         }
     }
 
-    public void onLocationChanged (Location location){
-        mBestLocation = location;
+    private void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+        locationUpdateCallback = null;
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        // TODO last update time
+
+        if (mRequestingLocationUpdates) {
+            locationUpdateCallback.onResult(location);
+        }
+    }
+
+    // TODO save state
 }
