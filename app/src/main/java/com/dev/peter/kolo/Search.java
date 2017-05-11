@@ -1,5 +1,7 @@
 package com.dev.peter.kolo;
 
+import android.os.Bundle;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -36,7 +38,15 @@ class Search {
         // TODO refresh search
     }
 
-    public void restoreFromSave() {
-        // TODO restore
+    public int getNumberOfResults() {
+        return pois.size();
+    }
+
+    public POI getResult(int index) {
+        return pois.get(index);
+    }
+
+    public void onSaveInstance(Bundle b) {
+        // TODO save values
     }
 }
