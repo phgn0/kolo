@@ -4,12 +4,15 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
 public class DiscoverActivity extends AppCompatActivity {
+    private static final String TAG = "DiscoverActivity";
+
     private Search search;
     MapFragment mapFragment;
     DiscoverListFragment listFragment;
@@ -38,6 +41,7 @@ public class DiscoverActivity extends AppCompatActivity {
             test.add(new POI("one", new LatLng(0.0, 0.0), "red"));
             test.add(new POI("two", new LatLng(0.0, 0.0), "red"));
             search.setTestPois(test);
+            listFragment.passSearch(search);
 
             switchToList();
         }
@@ -51,11 +55,13 @@ public class DiscoverActivity extends AppCompatActivity {
     }
 
     private void switchToMap() {
+        Log.v(TAG, "switch to map");
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, mapFragment).commit();
     }
 
     private void switchToList() {
+        Log.v(TAG, "switch to list");
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, listFragment).commit();
     }
