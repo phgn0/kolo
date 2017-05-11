@@ -20,6 +20,10 @@ public class DiscoverListFragment extends Fragment{
 
     }
 
+    public void passSearch(Search search) {
+        this.search = search;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,11 +32,17 @@ public class DiscoverListFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.fragment_map, container, false);
+        if (search != null) {
+            View fragmentView = inflater.inflate(R.layout.fragment_dicover_list, container, false);
 
-        ListView listView = (ListView) fragmentView.findViewById(R.id.discover_list_view);
-        SearchAdapter adapter = new SearchAdapter(getContext(), search);
+            ListView listView = (ListView) fragmentView.findViewById(R.id.discover_list_view);
+            SearchAdapter adapter = new SearchAdapter(getContext(), search);
 
-        return fragmentView;
+            return fragmentView;
+        } else {
+            // no search results yet
+            View fragmentView = inflater.inflate(R.layout.fragment_dicover_list, container, false);
+            return fragmentView;
+        }
     }
 }

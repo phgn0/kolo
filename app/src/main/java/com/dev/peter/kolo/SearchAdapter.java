@@ -49,8 +49,9 @@ public class SearchAdapter extends BaseAdapter {
         TextView title = (TextView) elementView.findViewById(R.id.title);
         TextView subtitle = (TextView) elementView.findViewById(R.id.subtitle);
 
-        title.setText("title " + Integer.toString(position));
-        subtitle.setText("sub");
+        POI element = search.getResult(position);
+        title.setText(element.getTitle());
+        subtitle.setText(element.color);
 
         return elementView;
     }

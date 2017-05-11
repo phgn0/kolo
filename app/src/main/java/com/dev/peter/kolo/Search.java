@@ -20,8 +20,8 @@ class Search {
         this.name = name;
     }
 
-    public void setPrefs() {
-
+    public void setTestPois(ArrayList<POI> pois) {
+        this.pois = pois;
     }
 
     /**
