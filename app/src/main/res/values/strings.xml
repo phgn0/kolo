@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Kolo</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="discover_map_tab_text">Map</string>
+    <string name="discover_list_tab_text">List</string>
 </resources>
