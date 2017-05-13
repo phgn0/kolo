@@ -51,6 +51,9 @@ public class DiscoverActivity extends AppCompatActivity
             test.add(new POI("two", new LatLng(0.0, 0.0), "red"));
             search.setTestPois(test);
             listFragment.passSearch(search);
+
+            // default tab
+            switchToList();
         }
     }
 
@@ -86,12 +89,12 @@ public class DiscoverActivity extends AppCompatActivity
     private void switchToMap() {
         Log.v(TAG, "switch to map");
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, mapFragment).commit();
+                .replace(R.id.fragment_container, mapFragment).commit();
     }
 
     private void switchToList() {
         Log.v(TAG, "switch to list");
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, listFragment).commit();
+                .replace(R.id.fragment_container, listFragment).commit();
     }
 }

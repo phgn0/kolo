@@ -3,6 +3,7 @@ package com.dev.peter.kolo;
 import  android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
+    private static final String TAG = "MapFragment";
 
     private GoogleMap mMap;
     private MapView mMapView;
@@ -47,15 +49,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public void onDestroyView (){
+        super.onDestroyView();
+    }
+
+    @Override
     public void onResume() {
-        super.onResume();
         mMapView.onResume();
+        super.onResume();
     }
 
     @Override
     public void onPause() {
-        super.onPause();
         mMapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        mMapView.onStop();
+        super.onStop();
     }
 
     @Override
@@ -66,8 +79,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
         mMapView.onLowMemory();
+        super.onLowMemory();
     }
 
     /**
